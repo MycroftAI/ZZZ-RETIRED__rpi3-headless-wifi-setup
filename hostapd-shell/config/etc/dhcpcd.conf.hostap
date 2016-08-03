@@ -39,5 +39,6 @@ slaac private
 # A hook script is provided to lookup the hostname if not set by the DHCP
 # server, but it should not be run by default.
 nohook lookup-hostname
+#denyinterfaces wlan0
 interface wlan0  
     static ip_address=172.24.1.1/24

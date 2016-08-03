@@ -11,8 +11,10 @@ iface lo inet loopback
 
 iface eth0 inet manual
 
+#auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet manual
+#    wireless-mode master
 #    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 
 allow-hotplug wlan1

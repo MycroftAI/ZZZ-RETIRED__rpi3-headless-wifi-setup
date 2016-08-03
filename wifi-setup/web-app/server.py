@@ -97,6 +97,7 @@ if __name__ == "__main__":
     devtools = dev_link_tools()
     aptools = hostapd_tools()
     ap = linktools.scan_ap()
+    station_mode_on()
     ws_app = tornado.web.Application([(r'/ws', WSHandler),])
     ws_app.listen(Port)
     app = tornado.web.Application(handlers, **settings)

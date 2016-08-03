@@ -44,13 +44,13 @@ class ap_link_tools():
 
 class hostapd_tools():
     def ap_config(self):
-        bash_command('bash -x ./hostapd-shell/config-change-ap-on.sh')
+        bash_command('bash -x /home/pi/rpi3-headless-wifi-setup/hostapd-shell/config-change-ap-on.sh')
     def ap_deconfig(self):
-        bash_command('bash -x ./hostapd-shell/config-change-restore.sh')
+        bash_command('bash -x  /home/pi/rpi3-headless-wifi-setup/hostapd-shell/config-change-restore.sh')
     def ap_up(self):
-        bash_command('bash -x ./hostapd-shell/ap-up.sh')
+        bash_command('bash -x /home/pi/rpi3-headless-wifi-setup/hostapd-shell/ap-up.sh')
     def ap_down(self):
-        bash_command('bash -x ./hostapd-shell/ap-down.sh')
+        bash_command('bash -x /home/pi/rpi3-headless-wifi-setup/hostapd-shell/ap-down.sh')
 
 class dev_link_tools():
 #    interface = config.ConfigSectionMap("wifi")['iface']

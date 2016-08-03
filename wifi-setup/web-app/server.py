@@ -22,7 +22,7 @@ from Config import AppConfig
 #APConf.write()
 
 class APConfig():
-    file_template = 'config.templates/hostapd.conf.template'
+    file_template = 'config.templates/etc/hostapd.conf.template'
     file_path = '/etc/hostapd/hostapd.conf'
     interface = 'wlan0'
     driver = 'nl80211'
@@ -36,8 +36,13 @@ class APConfig():
     macaddr_acl = 0
     ignore_broadcast_ssid = 0
 
-    def copy_config(self):
+    def copy_config_ap(self):
         copyfile(self.file_template, self.file_path)
+        copyfile('config.templates/default/hostapd.hostapd', '/etc/default/hostapd')
+        copyfile('config.templates/dnsmasq.conf.hostapd', '/etc/dnsmasq.conf')
+        copyfile('config.templates/etc/network/interfaces.hostapd', '/etc/network/interfaces')
+
+
     def write_config(self):
         ha.set_ssid(APConf,self.ssid)
         APConf.write()
@@ -92,7 +97,8 @@ wifi_connection_settings = {'ssid':'', 'passphrase':''}
 
 def station_mode_on():
     print "station mode on"
-    aptools.ap_config()
+    #aptools.ap_config()
+    AP.copy_config_ap()
     devtools.link_down()
     aptools.ap_up()
 
@@ -136,7 +142,6 @@ if __name__ == "__main__":
     AP = APConfig()
     APConf = HostapdConf(AP.file_path)
     AP.ssid = 'Mycroft' + '-' + str(get_mac())
-    print AP.ssid
     ha.set_ssid(APConf, AP.ssid)
     ha.set_iface(APConf, AP.interface)
     AP.write_config()

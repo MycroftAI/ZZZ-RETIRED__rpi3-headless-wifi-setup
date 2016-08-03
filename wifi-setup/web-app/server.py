@@ -22,7 +22,7 @@ from Config import AppConfig
 #APConf.write()
 
 class APConfig():
-    file_template = 'config.templates/etc/hostapd.conf.template'
+    file_template = 'config.templates/etc/hostapd/hostapd.conf.template'
     file_path = '/etc/hostapd/hostapd.conf'
     interface = 'wlan0'
     driver = 'nl80211'
@@ -38,17 +38,18 @@ class APConfig():
 
     def copy_config_ap(self):
         copyfile(self.file_template, self.file_path)
-        copyfile('config.templates/default/hostapd.hostapd', '/etc/default/hostapd')
-        copyfile('config.templates/dnsmasq.conf.hostapd', '/etc/dnsmasq.conf')
+        copyfile('config.templates/etc/dhcpcd.conf.hostapd', '/etc/dhcpcd.conf')
+        copyfile('config.templates/etc/default/hostapd.hostapd', '/etc/default/hostapd')
+        copyfile('config.templates/etc/dnsmasq.conf.hostapd', '/etc/dnsmasq.conf')
         copyfile('config.templates/etc/network/interfaces.hostapd', '/etc/network/interfaces')
 
 
     def write_config(self):
         ha.set_ssid(APConf,self.ssid)
-        APConf.write()
+        APConf.write()      
 
-AP = APConfig()
-APConf = HostapdConf(AP.file_path)
+#AP = APConfig()
+#APConf = HostapdConf(AP.file_path)
 
 #print AP.file_template
 #AP.ssid = "asdfsadfas"
@@ -140,11 +141,12 @@ def is_match(regex, text):
 if __name__ == "__main__":
     # APTools setup
     AP = APConfig()
-    APConf = HostapdConf(AP.file_path)
     AP.ssid = 'Mycroft' + '-' + str(get_mac())
+    AP.copy_config_ap()
+    APConf = HostapdConf('/etc/hostapd/hostapd.conf')
     ha.set_ssid(APConf, AP.ssid)
     ha.set_iface(APConf, AP.interface)
-    AP.write_config()
+    APConf.write()
     config = AppConfig()
     config.open_file()
     Port = config.ConfigSectionMap("server_port")['port']

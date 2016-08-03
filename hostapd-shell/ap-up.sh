@@ -1,9 +1,9 @@
 #!/bin/bash
 TOP=${PWD}
 echo "this is ap-up.sh"
-bash -x ${TOP}/config-change-ap-on.sh
-ifdown wlan0
-ifconfig wlan0 up
+#bash -x ${TOP}/config-change-ap-on.sh
+#ifdown wlan0
+#ifconfig wlan0 up
 #/usr/sbin/dnsmasq -C /etc/dnsmasq.conf
 systemctl start dnsmasq.service
 systemctl start dhcpcd.service

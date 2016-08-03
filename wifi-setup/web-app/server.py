@@ -6,9 +6,52 @@ import tornado.template
 import os
 import re
 import ast
+from uuid import getnode as get_mac
+from hostapdconf import helpers as ha
+from hostapdconf.parser import HostapdConf
+from shutil import copyfile
 from WiFiTools import ap_link_tools, dev_link_tools,hostapd_tools
+#from APTools import APConfig
 from Config import AppConfig
 
+#copyfile('config.templates/hostapd.conf.template', '/etc/hostapd/hostapd.conf')
+#APConf = HostapdConf('/etc/hostapd/hostapd.conf')
+#print APConf['interface']
+#APConf['interface'] = 'wlan1'
+#print APConf['interface']
+#APConf.write()
+
+class APConfig():
+    file_template = 'config.templates/hostapd.conf.template'
+    file_path = '/etc/hostapd/hostapd.conf'
+    interface = 'wlan0'
+    driver = 'nl80211'
+    ssid = 'PI3-AP'
+    hw_mode = 'g'
+    channel = 6
+    country_code = 'US'
+    ieee80211n = 1
+    wmm_enabled = 1
+    ht_capab = '[HT40][SHORT-GI-20][DSSS_CCK-40]'
+    macaddr_acl = 0
+    ignore_broadcast_ssid = 0
+
+    def copy_config(self):
+        copyfile(self.file_template, self.file_path)
+    def write_config(self):
+        ha.set_ssid(APConf,self.ssid)
+        APConf.write()
+
+AP = APConfig()
+APConf = HostapdConf(AP.file_path)
+
+#print AP.file_template
+#AP.ssid = "asdfsadfas"
+#print AP.ssid
+#ha.set_ssid(APConf, AP.ssid)
+#AP.write_config()
+
+       
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -87,7 +130,16 @@ def is_match(regex, text):
     pattern = re.compile(regex)
     return pattern.search(text) is not None
 
+
 if __name__ == "__main__":
+    # APTools setup
+    AP = APConfig()
+    APConf = HostapdConf(AP.file_path)
+    AP.ssid = 'Mycroft' + '-' + str(get_mac())
+    print AP.ssid
+    ha.set_ssid(APConf, AP.ssid)
+    ha.set_iface(APConf, AP.interface)
+    AP.write_config()
     config = AppConfig()
     config.open_file()
     Port = config.ConfigSectionMap("server_port")['port']

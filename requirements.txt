@@ -3,3 +3,4 @@ wifi
 configparser
 collections-extended
 pyroute2
+pyhostapdconf

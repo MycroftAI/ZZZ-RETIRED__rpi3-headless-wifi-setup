@@ -49,16 +49,16 @@ wifi_connection_settings = {'ssid':'', 'passphrase':''}
 
 def station_mode_on():
     print "station mode on"
-#    aptools.ap_config()
-#    devtools.link_down()
-#    aptools.ap_up()
+    aptools.ap_config()
+    devtools.link_down()
+    aptools.ap_up()
 
 def station_mode_off():
     print "station mode off"
-#    aptools.ap_down()
-#    aptools.ap_deconfig()
-#    devtools.link_down()
-#    devtools.link_up()
+    aptools.ap_down()
+    aptools.ap_deconfig()
+    devtools.link_down()
+    devtools.link_up()
 
 def connect_to_wifi(ssid,passphrase):
     print " connecting to wifi:", ssid, passphrase

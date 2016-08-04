@@ -4,3 +4,4 @@ configparser
 collections-extended
 pyroute2
 pyhostapdconf
+python-iptables

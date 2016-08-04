@@ -71,6 +71,16 @@ class JSHandler(tornado.web.RequestHandler):
         print "request for jquery", datetime.datetime.now()
         self.render("jquery-2.2.3.min.js")
 
+class BootstrapMinJSHandler(tornado.web.RequestHandler):
+    def get(self):
+        print "request for jquery", datetime.datetime.now()
+        self.render("bootstrap-3.3.7-dist/js/bootstrap.min.js")
+
+class BootstrapMinCSSHandler(tornado.web.RequestHandler):
+    def get(self):
+        print "request for jquery", datetime.datetime.now()
+        self.render("bootstrap-3.3.7-dist/css/bootstrap.min.css")
+
 class WSHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self,origin):
         return True
@@ -88,7 +98,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 handlers = [
     (r"/", MainHandler),
     (r"/jquery-2.2.3.min.js",JSHandler),
-    (r"/ws",WSHandler),
+    (r"/bootstrap-3.3.7-dist/css/bootstrap.min.css",BootstrapMinCSSHandler),
+    (r"/bootstrap-3.3.7-dist/js/bootstrap.min.js",BootstrapMinJSHandler),
+    (r"/ws",WSHandler)
 ]
 
 settings = dict(

@@ -65,35 +65,6 @@ class MainHandler(tornado.web.RequestHandler):
         print "page loaded", datetime.datetime.now()
         self.render("index.html",
         ap=ap)
-
-class ImgPixelHandler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("pixel.png")
-class ImgSpinnerHandler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("spinner_blue.gif")
-class ImgWifi0Handler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("wifi_0.png")
-class ImgWifi1Handler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("wifi_1.png")
-class ImgWifi2Handler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("wifi_2.png")
-class ImgWifi3Handler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("wifi_3.png")
-class ImgWifi4Handler(tornado.web.RequestHandler):
-    def get(self):
-        print "img loaded", datetime.datetime.now()
-        self.render("wifi_4.png")
 		
 class JSHandler(tornado.web.RequestHandler):
     def get(self):
@@ -127,13 +98,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 handlers = [
     (r"/", MainHandler),
     (r"/jquery-2.2.3.min.js",JSHandler),
-    (r"/pixel.png",ImgPixelHandler),
-	(r"/spinner_blue.gif",ImgSpinnerHandler),
-	(r"/wifi_0.png",ImgWifi0Handler),
-	(r"/wifi_1.png",ImgWifi1Handler),
-	(r"/wifi_2.png",ImgWifi2Handler),
-	(r"/wifi_3.png",ImgWifi3Handler),
-	(r"/wifi_4.png",ImgWifi4Handler),
+    (r"/img/(.*)", tornado.web.StaticFileHandler, { 'path': r'img/' } ),
     (r"/bootstrap-3.3.7-dist/css/bootstrap.min.css",BootstrapMinCSSHandler),
     (r"/bootstrap-3.3.7-dist/js/bootstrap.min.js",BootstrapMinJSHandler),
     (r"/ws",WSHandler)

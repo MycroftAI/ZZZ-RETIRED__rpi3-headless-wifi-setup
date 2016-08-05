@@ -167,13 +167,19 @@
 	
 	function getImagePath(strength)
 	{
-		if (strength > 60)
+		var parts = strength.split('/');
+		if (parts.length > 1)
+			strength = strength[0] / strength[1];	// strength was something like "30/70", convert to decimal
+		else
+			strength = strength/70;					// unspecified strength, assume out of 70 and convert to decimal
+
+		if (strength > 0.70)
 			return "wifi_4.png";
-		else if (strength > 45)
+		else if (strength > 0.60)
 			return "wifi_3.png";
-		else if (strength > 30)
+		else if (strength > 0.40)
 			return "wifi_2.png";
-		else if (strength > 15)
+		else if (strength > 0.20)
 			return "wifi_1.png";
 		else 
 			return "wifi_0.png";

@@ -95,10 +95,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         print 'connection closed\n'
 
+root = os.path.join(os.path.dirname(__file__), "srv/templates")
+		
 handlers = [
     (r"/", MainHandler),
     (r"/jquery-2.2.3.min.js",JSHandler),
-    (r"/img/(.*)", tornado.web.StaticFileHandler, { 'path': r'img/' } ),
+    (r"/img/(.*)", tornado.web.StaticFileHandler, { 'path': os.path.join(root, 'img/') } ),
     (r"/bootstrap-3.3.7-dist/css/bootstrap.min.css",BootstrapMinCSSHandler),
     (r"/bootstrap-3.3.7-dist/js/bootstrap.min.js",BootstrapMinJSHandler),
     (r"/ws",WSHandler)

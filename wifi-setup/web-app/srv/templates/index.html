@@ -1,59 +1,111 @@
 {% extends "base.html" %}
 
+
 {% block header %}
-  <h1 style="color:black">Mycroft Device Setup</h1>
-  <h2>Connect to Wi-Fi Network</h2>
-<!--  <label id="conn_text"></label><br /> -->
-<!--  <input type="text" id="input_text"/> -->
-<!--  <input type="submit" id="button" value="Send" /> -->
-  <input type="submit" id="scan-networks" value="Scan for Wi-Fi Networks" />
-  <input type="submit" id="ap-on" value="Station Mode: On" />
-  <input type="submit" id="ap-off" value="Station Mode: Off" />
+    <p>Unused for now, this is hidden in CSS</p>
+    <-- input type="submit" id="scan-networks" value="Scan for Wi-Fi Networks" / -->
+    <-- input type="submit" id="ap-on" value="Station Mode: On" / -->
+    <-- input type="submit" id="ap-off" value="Station Mode: Off" / -->
 {% end %}
+
+
+
 
 {% block content %}
-  
-<table border="1">
-  <tr>
-    <th>SSID</th>
-    <th>Mac Address</th>
-    <th>Encrypted</th>
-<!--    <th>Frequency</th> -->
-    <th>Quality</th>
-<!--    <th>Signal</th> -->
-<!--    <th>Channel</th> -->
-<!--    <th>Mode</th> -->
-    <th>Selected</th>
-  </tr>
-  {% for network in ap['network']%}
-  <tr>
-    <td>{{ network['ssid'] }}</td>
-    <td>{{ network['address'] }}</td>
-    <td>{{ network['encrypted'] }}</td>
-<!--    <td>{{ network['frequency'] }}</td> -->
-    <td>{{ network['quality'] }}</td>
-<!--    <td>{{ network['signal'] }}</td>  -->
-<!--    <td>{{ network['channel'] }}</td> -->
-<!--    <td>{{ network['mode'] }}</td> -->
-<!--    <td><textarea name= "message:{{ network['ssid'] }}" rows="1" cols="32"></textarea></td> -->
-<!--    <td><input type="text" id="input_text" name="input:{{ network['ssid'] }}"/></td> -->
-<!--    <td><input type="submit" id="button" name="button:{{ network['ssid'] }}" value="Connect"/></td> -->
-    <td><input id="radio" type="radio" name="radio_networks" value="{{ network['ssid'] }}"/></td>
-  </tr>
-  {% end %}
-</table>
-<div>
-  <input type="text" id="input_text" name="input_text"/>
-  <td><input type="submit" id="button" name="button" value="Connect"/></td>
-<div>
+	<div id="page1">
+		<table class="page">
+			<tr ><th class="roundtop">Device Wifi Setup</th></tr>
+			<tr><td style="height: 100%; padding: 1em;">This will take you through the process of connecting your Mycroft device to a wireless network.<P>
+					Click Next to begin.
+					<p/>
+				</td></tr>
+		</table>
+	</div>
+	
+	<div id="page2">
+		<!-- <label id="conn_text"></label><br /> -->
+		<!-- <input type="text" id="input_text"/> -->
+		<!-- <input type="submit" id="button" value="Send" /> -->
+		<!-- input type="submit" id="scan-networks" value="Scan for Wi-Fi Networks" /-->
+		<!-- input type="submit" id="ap-on" value="Station Mode: On" /-->
+		<!-- input type="submit" id="ap-off" value="Station Mode: Off" /-->
+
+		<table class="page">
+			<tr ><th class="roundtop" colspan="2">Choose Your Usual Wifi</th></tr>
+
+			{% for network in ap['network']%}
+				<tr><td>
+					<table class="tblSSID">
+						<tr><td onclick="SelectSSID('{{ network['ssid'] }}')">{{ network['ssid'] }}</td>
+							<td align="right" onclick="SelectSSID('{{ network['ssid'] }}')">
+								<img src="pixel.png" onload="this.onload=null; this.src=getImagePath('{{ network['quality'] }}');" />
+							</td>
+						</tr>
+					</table>
+				</td></tr>					
+				
+				<!-- Also available -->
+				<!--    <td>{{ network['address'] }}</td> -->
+				<!--    <td>{{ network['encrypted'] }}</td> -->
+				<!--    <td>{{ network['frequency'] }}</td> -->
+				<!--    <td>{{ network['signal'] }}</td>  -->
+				<!--    <td>{{ network['channel'] }}</td> -->
+				<!--    <td>{{ network['mode'] }}</td> -->
+			{% end %}
+		
+		</table>
+	</div>	
+		
+	<div id="page3">
+		<table class="page">
+			<tr ><th class="roundtop">Enter Password</th></tr>
+			<tr><td style="height: 100%; padding: 1em;">
+					Type the password for the '<span id='network'></span>' network, then click Connect to
+					configure the device to use this and begin pairing:<p>
+					
+					<input type="password" id="pwd" name="input_text" onkeyup="passKeypress(event)" placeholder="password" autocomplete="off"/><p>
+					
+					Click Back to choose a different network.
+				</td></tr>
+		</table>
+	</div>
+	
+	<div id="page4">
+		<table class="page">
+			<tr ><th class="roundtop">Connecting...</th></tr>
+			<tr><td style="height: 100%; padding: 1em;">
+					Please wait while the device connects to the new network.<P>
+					
+					In a few moments you will be connected to Cerberus to 
+					enable your device.<P>
+					
+					<div class="center">
+					<img src="spinner_blue.gif" width="48px"/>
+					</div>
+				</td></tr>
+		</table>
+	</div>
 {% end %}
 
+
+
+
 {% block footer %}
-  <p>2016 <a href="http://mycroft.ai">Mycroft AI, Inc.</a></p>
-  <div style="background:LightGray" id= "debug">
-    <label style="color:DarkBlue" id="conn_text"></label><br />
-    <div style="background:LightGray; color:DarkBlue" id="messages_txt" />
-  </div>
+	<div id="footer1" class="center">
+		<button onclick="NextPage(1);">Next</button>
+	</div>
+	
+	<div id="footer2" class="center">
+		<button onclick="location.reload()">Rescan</button>
+	</div>
+	
+	<div id="footer3" class="center">
+		<button onclick="NextPage(3,2);">Back</button>
+		<button class="" id='btnConnect' onclick="SSIDToDevice();">Connect</button>
+	</div>
+	
+	<div id="footer4" class="center">
+	</div>
 {% end %}
 
   

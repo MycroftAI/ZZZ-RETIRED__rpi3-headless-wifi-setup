@@ -6,70 +6,336 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 <head>
   <title>Mycroft Device Setup: Connect to WiFi Network</title>
-<!--  <script src="http://code.jquery.com/jquery-2.0.0.js"></script> -->
-  <link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet"> 
   <script src="jquery-2.2.3.min.js"></script>
+
+<style>
+	html, body
+	{
+		background: white;
+		font-family: sans-serif;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	/* Essentials */
+	.container { display: table; }
+	.content { display: table-row; height: 100%; }
+	.content-body { display: table-cell; }
+
+	/* Aestetics */
+	.container { width: 100%; height: 100%; }
+	.header, .footer { padding: 10px 20px;}
+	.content-body { padding: 20px; }	
+	
+	header { 
+		display: none;
+	}
+
+	.roundtop {
+		border-top-right-radius: 10px;
+		-moz-border-radius-topright: 10px
+		-webkit-border-top-right-radius: 10px;
+		border-top-left-radius: 10px;
+		-moz-border-radius-topleft: 10px
+		-webkit-border-top-left-radius: 10px;
+	}
+	
+	.page {
+		border-collapse: collapse;
+		width: 100%;
+	}
+	.page td {
+		border: 1px solid #eee;
+	}
+	.page th {
+		font-size: 250%;
+		background: black;
+		color: white;
+		padding: 0.25em;
+	}
+
+	button {
+		border-radius: 15px;
+		background: white;
+		display: inline-block;
+		margin: 0 10px 0 0;
+		font-size: 150%;
+		font-family: "Bitter",sans-serif;
+		line-height: 0.8;
+		appearance: none;
+		box-shadow: none;
+		padding: 0.5em;
+		
+		color: lightblue;
+		border: 2px solid lightblue;
+	}
+	
+	.btnDefault,
+	button:hover {
+		color: #4fabc9;
+		border: 2px solid #4fabc9;
+		background: #ebf6f9;
+	}
+	button:focus {
+		outline: none;
+	}
+
+	#page2 img {
+		width: 2em;
+	}
+	
+	#page1,#footer1,
+	#page3, #footer3,
+	#page4, #footer4
+	{ display: none; }
+
+	#debug {
+		display: none;
+		border-radius: 1em;
+	}
+
+	.center {
+		width: 100%;
+		text-align: center;
+	}
+	
+	.right {
+		width: 100%;
+		text-align: right;
+	}
+	
+	.tblSSID td {
+		width: 100%;
+		border-collapse: collapse;
+		border: 0px;
+	}
+	
+	.tblSSID:hover {
+		background: #ddd;
+		border-color: #ddd;
+	}
+	
+	#pwd {
+		font-size: 150%;
+		display: block;
+	}
+
+</style>
+
 </head>
-<body style="width:100%">
-<!-- <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"><script> -->
-<div  style="color:DarkGrey" id = "header">
-  {% block header %}{% end %}
-</div>
-<div class="container" id="content">
-  {% block content %}{% end %}
-</div>
+<body>
 
-<div id="footer">
-  {% block footer %}{% end %}
+<div class="container">
+
+    <header class="header">
+        {% block header %}{% end %}
+    </header>
+
+    <section class="content">
+        <div class="content-body">
+			{% block content %}{% end %}
+		</div>
+	</section>
+  
+    <footer class="footer">
+		{% block footer %}{% end %}
+	</footer>
+  
 </div>
-<script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+  
+<!-- script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script -->
+
 <script>
-$(document).ready(function () {
-    //change example.com with your IP or your host
-    var ws = new WebSocket("ws://172.24.1.1:8888/ws");
-    ws.onopen = function(evt) {
-      var conn_status = document.getElementById('conn_text');
-      conn_status.innerHTML = "Connection status: Connected!"
-    };
-    ws.onmessage = function(evt) {
-      var newMessage = document.createElement('p');
-      newMessage.textContent = "Server: " + evt.data;
-      document.getElementById('messages_txt').appendChild(newMessage);
-    };
-/*    ws.onclose = function(evt) {
-      alert ("Connection closed");
-      alert ("<td><input type="text" id="input_text"/></td><td><input type="submit" id="button" value="Send"/></td>")
+	var 	ws = null;
+	var 	g_ssid = "";
+	
+	function NextPage(iCurPage, iNext)
+	{
+		var iNext = iNext > 0 ? iNext : iCurPage+1;
+		var page = document.getElementById('page'+iCurPage);
+		var pageNext = document.getElementById('page'+iNext);
 
-    };
-*/
-    $("#button").click(function(evt) {
-      evt.preventDefault();
-      var message = "{" + "'passphrase':'''" + $("#input_text").val() + "'''}";
-      ws.send(message);
-      var newMessage = document.createElement('p');
-      newMessage.textContent = "Client: " + message;
-      document.getElementById('messages_txt').appendChild(newMessage);
-    });
-    $("#scan-networks").click(function(evt) {
-      var message = "{'wifi':'scan_networks'}"
-      ws.send(message);
-      });
-    $("#ap-on").click(function(evt) {
-      alert("Enabling Station Mode")
-      var message = "{'station_mode':'ap_on'}"
-      ws.send(message);
-      });
-    $("#ap-off").click(function(evt) {
-      alert("Disabling Station Mode")
-      var message = "{'station_mode':'ap_off'}"
-      ws.send(message);
-    });
-    $("input#radio").click(function(evt) {
-      /*alert($("input:radio[name='radio_networks']:checked").val())*/
-      var message = "{" + "'ssid':'''" + $("input:radio[name='radio_networks']:checked").val() + "'''}"
-      ws.send(message);
-    });
-});
+		var footer = document.getElementById('footer'+iCurPage);
+		var footerNext = document.getElementById('footer'+iNext);
+		
+		page.style.display = "none";
+		pageNext.style.display = "block";
+		
+		footer.style.display = "none";
+		footerNext.style.display = "block";
+	}
+	
+	function getImagePath(strength)
+	{
+		if (strength > 60)
+			return "wifi_4.png";
+		else if (strength > 45)
+			return "wifi_3.png";
+		else if (strength > 30)
+			return "wifi_2.png";
+		else if (strength > 15)
+			return "wifi_1.png";
+		else 
+			return "wifi_0.png";
+	}
+
+	function SelectSSID(ssid)
+	{
+		var network = document.getElementById('network');
+		network.innerHTML = ssid;
+		g_ssid = ssid;
+		NextPage(2);
+		document.getElementById('pwd').focus();
+	}
+
+	function SSIDToDevice()
+	{
+		NextPage(3);
+		setTimeout(function() { Redirect() }, 1000);
+
+		// Send selected SSID and password to the device,
+		// which will drop the AP Mode and move to the
+		// given network.
+		//
+		var pwd = document.getElementById('pwd').value;
+		ws.send("{" + "'ssid':'''" + g_ssid + "'''}");
+		ws.send("{" + "'passphrase':'''" + pwd + "'''}");
+	}
+	
+	function Redirect()
+	{
+		// TODO: Verify network connection...
+		/* get('http://www.google.com').then(
+			function(result) {
+				alert("Good!  "+result);
+			},
+			function (err) {
+				if (err == 'Error: Network Error')
+				{
+					// Failed to connect, try again in a few seconds...
+					setTimeout(function() { Redirect() }, 2000);
+				}
+				else
+				{
+					alert("good?!?"+err);
+				}
+				
+			}).catch(function(e){
+				alert('Catch');
+			}
+		); */
+		
+		// Jump to Cerberus to perform registration...
+		location = "https://cerberus.mycroft.ai";
+	}
+
+	function passKeypress(e)
+	{
+		if (e.keyCode == 13)
+			return SSIDToDevice();
+			
+		var pwd = document.getElementById('pwd');
+		var btnConnect = document.getElementById('btnConnect');
+		if (pwd.value != '')
+			btnConnect.className = 'btnDefault';
+		else
+			btnConnect.className = '';
+	}
+
+	////////////////////////////////////////////////
+	
+	$(document).ready(function () {
+		ws = new WebSocket("ws://172.24.1.1:8888/ws");
+		ws.onopen = function(evt) {
+			var conn_status = document.getElementById('conn_text');
+			conn_status.innerHTML = "Connection status: Connected!"
+		};
+		
+		ws.onmessage = function(evt) {
+			var newMessage = document.createElement('p');
+			newMessage.textContent = "Server: " + evt.data;
+			document.getElementById('messages_txt').appendChild(newMessage);
+		};
+		
+		$("#scan-networks").click(function(evt) {
+			var message = "{'wifi':'scan_networks'}"
+			ws.send(message);
+		});
+		$("#ap-on").click(function(evt) {
+			var message = "{'station_mode':'ap_on'}"
+			alert("Enabling Station Mode")
+			ws.send(message);
+		});
+		$("#ap-off").click(function(evt) {
+			alert("Disabling Station Mode")
+			var message = "{'station_mode':'ap_off'}"
+			ws.send(message);
+		});
+	});
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Helpers
+	
+	function get(url, respType) {
+		return doXHR("GET", url, respType);
+	}
+
+	// Ex: post("createAcct.php", "fname=Henry&lname=Ford");
+	//     post("compactDbase.php");
+	function post(url, data) {
+		return doXHR("POST", url, data);
+	}
+
+	function doXHR(method, url, param) {
+		// Return a new promise.
+		return new Promise(function(resolve, reject) {
+			// Do the usual XHR stuff
+			var req = new XMLHttpRequest();
+			
+			if (method === "GET" && IsDefined(param))
+			{
+				var respType = param;
+				if (respType === "blob" || respType === "arrayBuffer" || respType === "document" || respType === "json" || respType === "text")
+					req.responseType = respType;
+			}
+			req.open(method, url);
+
+			req.onload = function() {
+				// This is called even on 404 etc
+				// so check the status
+				if (req.status === 200) {
+					// Resolve the promise with the response text
+					resolve(req.response);
+				}
+				else {
+					// Otherwise reject with the status text
+					// which will hopefully be a meaningful error
+					reject(Error(req.statusText+": "+url));
+				}
+			};
+
+			// Handle network errors
+			req.onerror = function() {
+				reject(Error(req.status));
+			};
+
+			// Make the request
+			if (method === "POST" && IsDefined(param))
+			{
+				var data = param;
+				req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				req.send(data);
+			}
+			else
+				req.send();
+		});
+	}
+	
+	function IsDefined(parameter)
+	{
+		return !(typeof(parameter) === "undefined");
+	}
 </script>
+
 </body>
 </html>

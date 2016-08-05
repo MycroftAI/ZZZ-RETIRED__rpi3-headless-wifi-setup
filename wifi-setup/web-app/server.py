@@ -149,16 +149,18 @@ class station(Thread):
     def station_mode_on(self):
         print "station mode on"
         #aptools.ap_config()
-        AP.copy_config_ap()
-        devtools.link_down()
-        aptools.ap_up()
+# SSP: Temporary change while developing		
+#        AP.copy_config_ap()
+#        devtools.link_down()
+#        aptools.ap_up()
 
     def station_mode_off(self):
         print "station mode off"
-        aptools.ap_down()
-        aptools.ap_deconfig()
-        devtools.link_down()
-        devtools.link_up()
+# SSP: Temporary change while developing		
+#        aptools.ap_down()
+#        aptools.ap_deconfig()
+#        devtools.link_down()
+#        devtools.link_up()
 
 def connect_to_wifi(ssid,passphrase):
     print " connecting to wifi:", ssid, passphrase

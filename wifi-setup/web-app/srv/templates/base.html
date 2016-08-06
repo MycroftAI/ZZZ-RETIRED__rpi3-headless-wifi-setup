@@ -149,7 +149,10 @@
 <script>
 	var 	ws = null;
 	var 	g_ssid = "";
-	
+
+	var 	False = false;	// used in passing encrypted setting to SelectSSID()
+	var 	True = true;
+
 	function NextPage(iCurPage, iNext)
 	{
 		var iNext = iNext > 0 ? iNext : iCurPage+1;

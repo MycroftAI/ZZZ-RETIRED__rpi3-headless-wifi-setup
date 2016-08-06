@@ -6,22 +6,39 @@ import tornado.template
 import os
 import re
 import ast
+import sys
+import signal
+from subprocess import Popen, PIPE
 from threading import Thread
 from uuid import getnode as get_mac
 from hostapdconf import helpers as ha
 from hostapdconf.parser import HostapdConf
 from shutil import copyfile
-from WiFiTools import ap_link_tools, dev_link_tools,hostapd_tools
+from WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
 #from APTools import APConfig
 from Config import AppConfig
 from operator import itemgetter
 
+from wireless import Wireless
 #copyfile('config.templates/hostapd.conf.template', '/etc/hostapd/hostapd.conf')
 #APConf = HostapdConf('/etc/hostapd/hostapd.conf')
 #print APConf['interface']
 #APConf['interface'] = 'wlan1'
 #print APConf['interface']
 #APConf.write()
+
+def bash_command(cmd):
+    #print cmd
+    #try:
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    stdout,stderr = proc.communicate()
+    return stdout, stderr, proc.returncode
+
+def Exit_gracefully(signal, frame):
+    print "caught SIGINT"
+    S.station_mode_off()
+    print "exiting"
+    sys.exit(0)
 
 class APConfig():
     file_template = 'config.templates/etc/hostapd/hostapd.conf.template'
@@ -116,6 +133,10 @@ wifi_connection_settings = {'ssid':'', 'passphrase':''}
 class station(Thread):
     def station_mode_on(self):
         print "station mode on"
+        aptools.hostapd_start()
+        aptools.dnsmasq_start()
+        aptools.dnsmasq_stop()
+        aptools.dnsmasq_start()
         #aptools.ap_config()
 # SSP: Temporary change while developing		
 #        AP.copy_config_ap()
@@ -124,6 +145,8 @@ class station(Thread):
 
     def station_mode_off(self):
         print "station mode off"
+        aptools.dnsmasq_stop()
+        aptools.hostapd_stop()
 # SSP: Temporary change while developing		
 #        aptools.ap_down()
 #        aptools.ap_deconfig()
@@ -132,6 +155,30 @@ class station(Thread):
 
 def connect_to_wifi(ssid,passphrase):
     print " connecting to wifi:", ssid, passphrase
+    template = """country={country}
+ctrl_interface=/var/run/wpa_supplicant
+update_config=1
+network={b1}
+    ssid="{ssid}"
+    psk="{passphrase}"
+    key_mgmt=WPA-PSK
+{b2}"""
+    context = {
+        "b1": '{',
+        "b2": '}',
+        "country": 'US',
+        "ssid": ssid,
+        "passphrase": passphrase
+    }
+    with  open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as myfile:
+        myfile.write(template.format(**context))
+        #myfile.close()
+    #try:
+        bash_command(['/bin/ip', 'addr', 'flush', 'wlan0'])
+        bash_command(['/sbin/ifdown ','wlan0'])
+        bash_command(['/sbin/ifup ','wlan0'])
+    #except:
+        print "connection failed"
     
 def message_switch(message):
     dict2 = ast.literal_eval(message)
@@ -148,7 +195,7 @@ def message_switch(message):
     elif is_match("'passphrase'",message) is True:
         print "PASSPHRASE Recieved:", dict2
         print dict2['passphrase']
-        S.station_mode_off()
+        #S.station_mode_off()
         wifi_connection_settings['passphrase'] = dict2['passphrase']
         connect_to_wifi(wifi_connection_settings['ssid'],dict2['passphrase'])
 #        time.sleep(5)
@@ -159,14 +206,19 @@ def is_match(regex, text):
 
 
 if __name__ == "__main__":
+    #connect_to_wifi(ssid='MOTOROLA-F29E5', passphrase='2e636e8543dc97ee7299')
+    #bash_command(['ip', 'addr', 'flush', 'wlan0'])
+
+
+    signal.signal(signal.SIGINT, Exit_gracefully)
     # APTools setup
-    AP = APConfig()
-    AP.ssid = 'Mycroft' + '-' + str(get_mac())
-    AP.copy_config_ap()
-    APConf = HostapdConf('/etc/hostapd/hostapd.conf')
-    ha.set_ssid(APConf, AP.ssid)
-    ha.set_iface(APConf, AP.interface)
-    APConf.write()
+#    AP = APConfig()
+#    AP.ssid = 'Mycroft' + '-' + str(get_mac())
+#    AP.copy_config_ap()
+#    APConf = HostapdConf('/etc/hostapd/hostapd.conf')
+#    ha.set_ssid(APConf, AP.ssid)
+#    ha.set_iface(APConf, AP.interface)
+#    APConf.write()
     config = AppConfig()
     config.open_file()
     Port = config.ConfigSectionMap("server_port")['port']
@@ -174,8 +226,10 @@ if __name__ == "__main__":
     print Port
     linktools = ap_link_tools()
     devtools = dev_link_tools()
+    #devtools.link_add_vap()
     aptools = hostapd_tools()
     ap = linktools.scan_ap()
+    W = Wireless()
 
 
     #################################################
@@ -196,15 +250,17 @@ if __name__ == "__main__":
 
     S = station()
 #    t = Thread(target=S.station_mode_on())
-    #station_mode_on()
+    S.station_mode_on()
     ws_app = tornado.web.Application([(r'/ws', WSHandler),])
     ws_app.listen(Port)
     app = tornado.web.Application(handlers, **settings)
     app.listen(WSPort)
-    t2 =Thread(target=tornado.ioloop.IOLoop.current().start())
-    tornado.ioloop.IOLoop.current().start()
+    t =Thread(target=tornado.ioloop.IOLoop.current().start())
+    #tornado.ioloop.IOLoop.current().start()
+
     try:
         t.start()
         t.join()
     except:
-        sys.exit()
+
+        sys.exit(1)

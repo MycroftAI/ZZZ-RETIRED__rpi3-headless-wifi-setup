@@ -1,0 +1,19 @@
+import iptc
+
+chain = iptc.Chain(iptc.Table(iptc.Table.NAT), "PREROUTING")
+rule = iptc.Rule()
+rule.protocol = "tcp"
+match = iptc.Match(rule, "tcp")
+match.dport = "80"
+rule.add_match(match)
+match = iptc.Match(rule, "iprange")
+match.src_range = "172.24.1.1-172.24.1.254"
+match.dst = "172.24.1.1"
+#rule.src = "172.24.1.0/255.255.255.0"
+target = iptc.Target(rule, "DNAT")
+#target.to_ports = "80"
+rule.target = target
+chain.insert_rule(rule)
+
+#rule.dst = "172.24.1.1"
+

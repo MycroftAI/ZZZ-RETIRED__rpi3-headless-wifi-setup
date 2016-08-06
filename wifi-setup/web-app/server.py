@@ -177,20 +177,20 @@ if __name__ == "__main__":
     ap = linktools.scan_ap()
 	
 	
-	#################################################
-	# Clean up the list of networks.
-	#################################################
-	# First, sort by name and strength
-	nets_byNameAndStr = sorted(ap['network'], key=itemgetter('ssid', 'quality'), reverse=True)
-	# now strip out duplicates (e.g. repeaters with the same SSID), keeping the first (strongest)
-	lastSSID = "."
-	for n in nets_byNameAndStr[:]:
-		if (n['ssid'] == lastSSID):
-			nets_byNameAndStr.remove(n)
-		else:
-			lastSSID = n['ssid']
-	# Finally, sort by strength alone
-	ap['network'] = sorted(nets_byNameAndStr, key=itemgetter('quality'), reverse=True)
+    #################################################
+    # Clean up the list of networks.
+    #################################################
+    # First, sort by name and strength
+    nets_byNameAndStr = sorted(ap['network'], key=itemgetter('ssid', 'quality'), reverse=True)
+    # now strip out duplicates (e.g. repeaters with the same SSID), keeping the first (strongest)
+    lastSSID = "."
+    for n in nets_byNameAndStr[:]:
+        if (n['ssid'] == lastSSID):
+            nets_byNameAndStr.remove(n)
+        else:
+            lastSSID = n['ssid']
+    # Finally, sort by strength alone
+        ap['network'] = sorted(nets_byNameAndStr, key=itemgetter('quality'), reverse=True)
 
 	
     S = station()

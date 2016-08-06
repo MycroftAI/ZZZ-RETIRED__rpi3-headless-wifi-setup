@@ -86,7 +86,8 @@
 	
 	#page1,#footer1,
 	#page3, #footer3,
-	#page4, #footer4
+	#page4, #footer4,
+	#getPass, #noPass
 	{ display: none; }
 
 	#debug {
@@ -185,11 +186,23 @@
 			return "img/wifi_0.png";
 	}
 
-	function SelectSSID(ssid)
+	function SelectSSID(ssid, encrypted)
 	{
-		var network = document.getElementById('network');
+		if (encrypted)
+		{
+			var network = document.getElementById('network');
+			getPass.style.display = 'block';
+			noPass.style.display = 'none';
+		}
+		else
+		{
+			var network = document.getElementById('networkNoPass');
+			getPass.style.display = 'none';
+			noPass.style.display = 'block';
+		}
 		network.innerHTML = ssid;
 		g_ssid = ssid;
+		
 		NextPage(2);
 		document.getElementById('pwd').focus();
 	}

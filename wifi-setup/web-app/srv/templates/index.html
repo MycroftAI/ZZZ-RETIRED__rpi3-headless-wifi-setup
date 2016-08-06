@@ -33,11 +33,14 @@
 		<table class="page">
 			<tr ><th class="roundtop" colspan="2">Choose Your Usual Wifi</th></tr>
 
-			{% for network in ap['network']%}
+			{% for network in ap['network'] %}
+				{% if network == "" %}
+					{% continue %}
+				{% end %}
 				<tr><td>
 					<table class="tblSSID">
-						<tr><td onclick="SelectSSID('{{ network['ssid'] }}')">{{ network['ssid'] }}</td>
-							<td align="right" onclick="SelectSSID('{{ network['ssid'] }}')">
+						<tr><td onclick="SelectSSID('{{ network['ssid'] }}', {{ network['encrypted'] }})">{{ network['ssid'] }}</td>
+							<td align="right" onclick="SelectSSID('{{ network['ssid'] }}', {{ network['encrypted'] }} )">
 								<img src="img/pixel.png" onload="this.onload=null; this.src=getImagePath('{{ network['quality'] }}');" />
 							</td>
 						</tr>
@@ -57,17 +60,31 @@
 	</div>	
 		
 	<div id="page3">
-		<table class="page">
-			<tr ><th class="roundtop">Enter Password</th></tr>
-			<tr><td style="height: 100%; padding: 1em;">
-					Type the password for the '<span id='network'></span>' network, then click Connect to
-					configure the device to use this and begin pairing:<p>
-					
-					<input type="password" id="pwd" name="input_text" onkeyup="passKeypress(event)" placeholder="password" autocomplete="off"/><p>
-					
-					Click Back to choose a different network.
-				</td></tr>
-		</table>
+		<div id="noPass">
+			<table class="page">
+				<tr ><th class="roundtop">Enter Password</th></tr>
+				<tr><td style="height: 100%; padding: 1em;">
+						The '<span id='networkNoPass'></span>' network is not
+						encrypted, click Connect to
+						configure the device to use this and begin pairing:<p>
+						
+						Click Back to choose a different network.
+					</td></tr>
+			</table>
+		</div>
+		<div id="getPass">
+			<table class="page">
+				<tr ><th class="roundtop">Enter Password</th></tr>
+				<tr><td style="height: 100%; padding: 1em;">
+						Type the password for the '<span id='network'></span>' network, then click Connect to
+						configure the device to use this and begin pairing:<p>
+						
+						<input type="password" id="pwd" name="input_text" onkeyup="passKeypress(event)" placeholder="password" autocomplete="off"/><p>
+						
+						Click Back to choose a different network.
+					</td></tr>
+			</table>
+		</div>
 	</div>
 	
 	<div id="page4">

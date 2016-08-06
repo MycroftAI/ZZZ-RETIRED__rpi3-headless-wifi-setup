@@ -14,6 +14,7 @@ from shutil import copyfile
 from WiFiTools import ap_link_tools, dev_link_tools,hostapd_tools
 #from APTools import APConfig
 from Config import AppConfig
+from operator import itemgetter
 
 #copyfile('config.templates/hostapd.conf.template', '/etc/hostapd/hostapd.conf')
 #APConf = HostapdConf('/etc/hostapd/hostapd.conf')
@@ -175,8 +176,8 @@ if __name__ == "__main__":
     devtools = dev_link_tools()
     aptools = hostapd_tools()
     ap = linktools.scan_ap()
-	
-	
+
+
     #################################################
     # Clean up the list of networks.
     #################################################
@@ -192,7 +193,7 @@ if __name__ == "__main__":
     # Finally, sort by strength alone
         ap['network'] = sorted(nets_byNameAndStr, key=itemgetter('quality'), reverse=True)
 
-	
+
     S = station()
 #    t = Thread(target=S.station_mode_on())
     #station_mode_on()

@@ -1,11 +1,10 @@
 from subprocess import Popen, PIPE
 from socket import AF_INET
+import httplib
 from pyroute2 import IPRoute
 from wifi import Cell, Scheme
 from Config import AppConfig
 from collections import defaultdict
-from wireless import Wireless
-
 #app_config = './configuration/default.ini'
 
 #config = AppConfig()
@@ -20,6 +19,7 @@ config = AppConfig()
 ip = IPRoute()
 
 # wifi schem
+
 
 
 class ap_link_tools():
@@ -45,6 +45,14 @@ class ap_link_tools():
 
     def scan_links(self):
         return [x.get_attr('IFLA_IFNAME') for x in ip.get_links()]
+
+    def internet_on(host="127.0.0.1", port=80, timeout=3):
+        conn = httplib.HTTPConnection("www.google.com")
+        try:
+            conn.request("HEAD", "/")
+            return True
+        except:
+            return False
 
 
 class hostapd_tools():
@@ -99,9 +107,9 @@ class dev_link_tools():
 def bash_command(cmd):
     print cmd
     #try:
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    proc = Popen(cmd, shell=False , stdout=PIPE, stderr=PIPE)
     stdout,stderr = proc.communicate()
-    return stdout, stderr, proc.returncode
+    print stderr, stderr, proc.returncode
 
 
     #except stderr:

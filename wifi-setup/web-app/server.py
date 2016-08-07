@@ -10,6 +10,8 @@ import sys
 import signal
 from subprocess import Popen, PIPE
 from threading import Thread
+import threading
+import logging
 from uuid import getnode as get_mac
 from hostapdconf import helpers as ha
 from hostapdconf.parser import HostapdConf
@@ -19,7 +21,6 @@ from WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
 from Config import AppConfig
 from operator import itemgetter
 
-from wireless import Wireless
 #copyfile('config.templates/hostapd.conf.template', '/etc/hostapd/hostapd.conf')
 #APConf = HostapdConf('/etc/hostapd/hostapd.conf')
 #print APConf['interface']
@@ -27,12 +28,17 @@ from wireless import Wireless
 #print APConf['interface']
 #APConf.write()
 
+logging.basicConfig(level=logging.DEBUG, format='(%(threadName)-10s) %(message)s',)
+
+
 def bash_command(cmd):
-    #print cmd
-    #try:
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    stdout,stderr = proc.communicate()
-    return stdout, stderr, proc.returncode
+    print cmd
+    try:
+        proc = Popen(cmd, shell=False, stdout=PIPE, stderr=PIPE)
+        stdout,stderr = proc.communicate('n\n')
+        #print stderr, proc.returncode
+    except:
+        print "bash fail"
 
 def Exit_gracefully(signal, frame):
     print "caught SIGINT"
@@ -79,10 +85,11 @@ class APConfig():
        
 
 class MainHandler(tornado.web.RequestHandler):
-    def get(self):
+   def get(self):
+        self.ap = ap_link_tools().scan_ap()
         print "page loaded", datetime.datetime.now()
         self.render("index.html",
-        ap=ap)
+        ap=self.ap)
 		
 class JSHandler(tornado.web.RequestHandler):
     def get(self):
@@ -108,10 +115,33 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print 'received message: %s\n' % message
         self.write_message(message + ' OK')
-        message_switch(message)
+        self.message_switch(message)
 
     def on_close(self):
         print 'connection closed\n'
+
+    def is_match(self, regex, text):
+        self.pattern = re.compile(regex)
+        return self.pattern.search(text) is not None
+
+    def message_switch(self,message):
+        self.dict2 = ast.literal_eval(message)
+        print type(self.dict2)
+        if self.is_match("'ap_on'", message) is True:
+            station_mode_on()
+        elif self.is_match("'ap_off'", message) is True:
+            station_mode_off()
+        elif self.is_match("'scan_networks'", message) is True:
+            print "Need: Refresh page/div/unhide/something"
+        elif self.is_match("'ssid'", message) is True:
+            print "SSID selected: ", self.dict2['ssid']
+            wifi_connection_settings['ssid'] = self.dict2['ssid']
+        elif self.is_match("'passphrase'", message) is True:
+            print "PASSPHRASE Recieved:", self.dict2
+            print self.dict2['passphrase']
+            # S.station_mode_off()
+            wifi_connection_settings['passphrase'] = self.dict2['passphrase']
+            connect_to_wifi(wifi_connection_settings['ssid'], self.dict2['passphrase'])
 
 root = os.path.join(os.path.dirname(__file__), "srv/templates")
 		
@@ -130,28 +160,7 @@ settings = dict(
 
 wifi_connection_settings = {'ssid':'', 'passphrase':''}
 
-class station(Thread):
-    def station_mode_on(self):
-        print "station mode on"
-        aptools.hostapd_start()
-        aptools.dnsmasq_start()
-        aptools.dnsmasq_stop()
-        aptools.dnsmasq_start()
-        #aptools.ap_config()
-# SSP: Temporary change while developing		
-#        AP.copy_config_ap()
-#        devtools.link_down()
-#        aptools.ap_up()
 
-    def station_mode_off(self):
-        print "station mode off"
-        aptools.dnsmasq_stop()
-        aptools.hostapd_stop()
-# SSP: Temporary change while developing		
-#        aptools.ap_down()
-#        aptools.ap_deconfig()
-#        devtools.link_down()
-#        devtools.link_up()
 
 def connect_to_wifi(ssid,passphrase):
     print " connecting to wifi:", ssid, passphrase
@@ -172,45 +181,36 @@ network={b1}
     }
     with  open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as myfile:
         myfile.write(template.format(**context))
-        #myfile.close()
-    #try:
-        bash_command(['/bin/ip', 'addr', 'flush', 'wlan0'])
-        bash_command(['/sbin/ifdown ','wlan0'])
-        bash_command(['/sbin/ifup ','wlan0'])
-    #except:
+        myfile.close()
+    try:
+        bash_command(["ip addr flush wlan0"])
+        #bash_command(["wpa_supplicant -iwlan0 -Dnl80211 -c /etc/wpa_supplicant/wpa_supplicant.conf"])
+        bash_command(["ifdown","wlan0"])
+        #bash_command(['ifconfig', 'wlan0','up'])
+        bash_command(["ifup","wlan0"])
+    except:
         print "connection failed"
     
-def message_switch(message):
-    dict2 = ast.literal_eval(message)
-    print type(dict2)
-    if is_match("'ap_on'", message) is True:
-        station_mode_on()
-    elif is_match("'ap_off'", message) is True:
-        station_mode_off()
-    elif is_match("'scan_networks'", message) is True:
-        print "Need: Refresh page/div/unhide/something"
-    elif is_match("'ssid'", message) is True:
-        print "SSID selected: ", dict2['ssid']
-        wifi_connection_settings['ssid'] = dict2['ssid']
-    elif is_match("'passphrase'",message) is True:
-        print "PASSPHRASE Recieved:", dict2
-        print dict2['passphrase']
-        #S.station_mode_off()
-        wifi_connection_settings['passphrase'] = dict2['passphrase']
-        connect_to_wifi(wifi_connection_settings['ssid'],dict2['passphrase'])
-#        time.sleep(5)
 
-def is_match(regex, text):
-    pattern = re.compile(regex)
-    return pattern.search(text) is not None
+
+
 
 
 if __name__ == "__main__":
-    #connect_to_wifi(ssid='MOTOROLA-F29E5', passphrase='2e636e8543dc97ee7299')
+    signal.signal(signal.SIGINT, Exit_gracefully)
+
+   #threads = []
+   #for i in range(5):
+    #   t = station_worker()#args=(i,), kwargs={'a': 'A', 'b': 'B'})
+    #   t.start()
+
+
+
+
+        #connect_to_wifi(ssid='MOTOROLA-F29E5', passphrase='2e636e8543dc97ee7299')
     #bash_command(['ip', 'addr', 'flush', 'wlan0'])
 
 
-    signal.signal(signal.SIGINT, Exit_gracefully)
     # APTools setup
 #    AP = APConfig()
 #    AP.ssid = 'Mycroft' + '-' + str(get_mac())
@@ -224,43 +224,51 @@ if __name__ == "__main__":
     Port = config.ConfigSectionMap("server_port")['port']
     WSPort = config.ConfigSectionMap("server_port")['ws_port']
     print Port
-    linktools = ap_link_tools()
     devtools = dev_link_tools()
     #devtools.link_add_vap()
     aptools = hostapd_tools()
-    ap = linktools.scan_ap()
-    W = Wireless()
+
+
+##    ap = linktools.scan_ap()
+    #W = Wireless()
 
 
     #################################################
     # Clean up the list of networks.
     #################################################
     # First, sort by name and strength
-    nets_byNameAndStr = sorted(ap['network'], key=itemgetter('ssid', 'quality'), reverse=True)
+##    nets_byNameAndStr = sorted(ap['network'], key=itemgetter('ssid', 'quality'), reverse=True)
     # now strip out duplicates (e.g. repeaters with the same SSID), keeping the first (strongest)
-    lastSSID = "."
-    for n in nets_byNameAndStr[:]:
-        if (n['ssid'] == lastSSID):
-            nets_byNameAndStr.remove(n)
-        else:
-            lastSSID = n['ssid']
+##    lastSSID = "."
+##    for n in nets_byNameAndStr[:]:
+##        if (n['ssid'] == lastSSID):
+##            nets_byNameAndStr.remove(n)
+##        else:
+##            lastSSID = n['ssid']
     # Finally, sort by strength alone
-        ap['network'] = sorted(nets_byNameAndStr, key=itemgetter('quality'), reverse=True)
+##        ap['network'] = sorted(nets_byNameAndStr, key=itemgetter('quality'), reverse=True)
 
 
-    S = station()
-#    t = Thread(target=S.station_mode_on())
-    S.station_mode_on()
+    #S = Station()
+
+    #S.station_mode_on()
     ws_app = tornado.web.Application([(r'/ws', WSHandler),])
     ws_app.listen(Port)
     app = tornado.web.Application(handlers, **settings)
-    app.listen(WSPort)
-    t =Thread(target=tornado.ioloop.IOLoop.current().start())
-    #tornado.ioloop.IOLoop.current().start()
+    a = Thread(target=app.listen(WSPort))
+    tor = Thread(target=tornado.ioloop.IOLoop.current().start())
 
-    try:
-        t.start()
-        t.join()
-    except:
 
-        sys.exit(1)
+ #   for i in range(1):
+ #       t = threading.Thread(target=station_worker) # args=('work', i, ))
+ #       threads.append(t)
+ #       t.start()
+
+
+#    try:
+#        print s.is_alive() + "whole lotta debug goin' on"
+#        a.start()
+#        s.start()
+#        t.start()
+#    except:
+#        sys.exit(1)

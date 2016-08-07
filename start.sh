@@ -4,7 +4,8 @@ VIRTUALENV_ROOT=${VIRTUALENV_ROOT:-"${HOME}/.virtualenvs/wifi-setup"}
 
 case $1 in
 	"server") SCRIPT=${TOP}/wifi-setup/web-app/server.py ;;
-	*) echo "Usage: start.sh [server]"; exit ;;
+    "main") SCRIPT=${TOP}/wifi-setup/web-app/main.py ;;
+	*) echo "Usage: start.sh [server main]"; exit ;;
 esac
 
 echo "Starting $@"

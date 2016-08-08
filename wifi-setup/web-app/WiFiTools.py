@@ -54,6 +54,38 @@ class ap_link_tools():
         except:
             return False
 
+    def connect_to_wifi(self, ssid, passphrase):
+        print " connecting to wifi:", ssid, passphrase
+        self.template = """country={country}
+    ctrl_interface=/var/run/wpa_supplicant
+    update_config=1
+    network={b1}
+        ssid="{ssid}"
+        psk="{passphrase}"
+        key_mgmt=WPA-PSK
+    {b2}"""
+        self.context = {
+            "b1": '{',
+            "b2": '}',
+            "country": 'US',
+            "ssid": ssid,
+            "passphrase": passphrase
+        }
+        with  open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as self.myfile:
+            self.myfile.write(self.template.format(**self.context))
+            self.myfile.close()
+        try:
+            print bash_command(["ip addr flush wlan0"])
+
+            print bash_command(["ifdown wlan0"])
+
+            #bash_command(['ifconfig wlan0 up'])
+            #rint bash_command(["wpa_supplicant -iwlan0 -Dnl80211 -c /etc/wpa_supplicant/wpa_supplicant.conf"])
+            print bash_command(["ifup wlan0"])
+        except:
+            print "connection failed"
+
+
 
 class hostapd_tools():
     def ap_config(self):
@@ -65,18 +97,20 @@ class hostapd_tools():
     def ap_down(self):
         bash_command('bash -x /home/pi/rpi3-headless-wifi-setup/hostapd-shell/ap-down.sh')
     def dnsmasq_start(self):
-        print "start dnsmasq"
         bash_command(["systemctl", "start", "dnsmasq.service"])
-        #bash_command(["dnsmasq",  "--interface=uap0", "--dhcp-range=uap0,172.24.1.1,172.24.1.1,255.255.255.0"])
+        #bash_command(["dnsmasq -D --interface=uap0 --dhcp-range=uap0,172.24.1.1,172.24.1.1,255.255.255.0"])
+
     def dnsmasq_stop(self):
-        print "stop dnsmasq"
         bash_command(["systemctl", "stop", "dnsmasq.service"])
+        #bash_command(["pkill -f 'dnsmasq'"])
 
     def hostapd_start(self):
-        bash_command(["systemctl", "start", "hostapd.service"])
+        print bash_command(["systemctl", "start", "hostapd.service"])
+        #print bash_command(["hostapd /etc/hostapd/hostapd.conf"])
 
     def hostapd_stop(self):
-        bash_command(['systemctl', 'stop', 'hostapd.service'])
+        print bash_command(['systemctl', 'stop', 'hostapd.service'])
+        #bash_command(["pfkill -f 'hostapd'"])
 
 
 class dev_link_tools():
@@ -100,16 +134,17 @@ class dev_link_tools():
         ip.link('set', index=dev,
             state='down')
     def link_add_vap(self):
-        bash_command('iw dev wlan0 interface add uap0 type __ap')
-        bash_command('ifdown upa0')
-        bash_command('ifup upa0')
+        print bash_command('iw dev wlan0 interface add uap0 type __ap')
+        print bash_command('ifdown upa0')
+        print bash_command('ifup upa0')
 
 def bash_command(cmd):
     print cmd
     #try:
-    proc = Popen(cmd, shell=False , stdout=PIPE, stderr=PIPE)
-    stdout,stderr = proc.communicate()
-    print stderr, stderr, proc.returncode
+    proc = Popen(cmd, shell=True , stdout=PIPE, stderr=PIPE)
+    proc.wait()
+    #stdout,stderr = proc.communicate()
+    return proc.returncode
 
 
     #except stderr:

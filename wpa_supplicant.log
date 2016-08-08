@@ -1,0 +1,59 @@
+Successfully initialized wpa_supplicant
+l2_packet_init: socket(PF_PACKET): Operation not permitted
+Could not set interface wlan0 flags (DOWN): Operation not permitted
+Successfully initialized wpa_supplicant
+l2_packet_init: socket(PF_PACKET): Operation not permitted
+Could not set interface uap0 flags (DOWN): Operation not permitted
+Successfully initialized wpa_supplicant
+uap0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+uap0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+uap0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+uap0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+uap0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+Line 0: Invalid PSK '2e636e8543dc97ee7299'.
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+wlan0: CTRL-EVENT-TERMINATING 
+Successfully initialized wpa_supplicant
+wlan0: CTRL-EVENT-TERMINATING 

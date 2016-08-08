@@ -1,0 +1,39 @@
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto lo
+iface lo inet loopback
+
+iface eth0 inet manual
+
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+#    wireless-mode master
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+#allow-hotplug wlan1
+#iface wlan1 inet manual
+#    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+auto uap0
+allow-hotplug uap0
+iface uap0 inet static
+    address 172.24.1.1
+    netmask 255.255.255.0
+    hwaddress ether bc:5f:f4:be:7d:0a
+
+iface wlan0-MOTOROLA-F29E5 inet dhcp
+    wpa-psk ae6a7e27accdc886b6a16eab6102f343e3241f075b23e906c7092c58f3ea99bc
+    wpa-ssid ATT985
+    wireless-channel auto
+
+iface uap0-MOTOROLA-F29E5 inet dhcp
+    wpa-psk 680805213266967b4d2cc64bba784129e69f6fe876a760e7b299b6e84c147cfb
+    wpa-ssid MOTOROLA-F29E5_2GEXT
+    wireless-channel auto

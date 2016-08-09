@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-GB">
-<meta http-equiv="refresh" content="content"> 
+<meta http-equiv="refresh" content="content">
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -79,7 +79,7 @@
 	button:focus {
 		outline: none;
 	}
-
+	
 	.pairButton {
 		color: #65e765;
 		border: 2px solid #65e765;
@@ -110,14 +110,15 @@
 	#page4, #footer4,
 	#page5, #footer5,
 	#page6, #footer6,
-	#getPass, #noPass
+	#getPass, #noPass,
+	#debug
 	{ display: none; }
 
-	#debug {
-		display: none;
-		border-radius: 1em;
+	#messages_txt {
+		border: 1px solid #4fabc9;
 		background: #ddd;
 		margin-bottom: 5px;
+		margin-top: 3px;
 	}
 
 	.center {
@@ -142,10 +143,15 @@
 	}
 	
 	#pwd {
-		font-size: 150%;
+		font-size: 100%;
 		display: block;
 	}
-
+	
+	.pageContent {
+		height: 100%; padding: 1em;
+		font-size: 150%;
+	}
+	
 	a {
 		text-decoration: none;
 		color: blue;
@@ -169,22 +175,29 @@
         {% block header %}{% end %}
     </header>
 
-    <section class="content">
-        <div class="content-body">
+  <section class="content">
+    <div class="content-body">
 			{% block content %}{% end %}
 		</div>
-	</section>
+  </section>
+
+
+
+
+
+
+
   
-    <footer class="footer">
+  <footer class="footer">
 		{% block footer %}{% end %}
-	</footer>
-  
+  </footer>
+	
 </div>
-  
+
 <script>
 	var 	ws = null;
 	var 	g_ssid = "";
-
+	
 	var 	False = false;	// used in passing encrypted setting to SelectSSID()
 	var 	True = true;
 
@@ -281,7 +294,7 @@
 		ws.send("{" + "'ssid':'''" + g_ssid + "'''}");
 		ws.send("{" + "'passphrase':'''" + pwd + "'''}");
 	}
-	
+
 	// TODO: This should be removed once the websocket starts returning results,
 	//       instead move the following NextPages() to the result handler.
 	function Redirect()
@@ -312,7 +325,7 @@
 	}
 
 	////////////////////////////////////////////////
-	
+
 	function Log(msg)
 	{
 		document.getElementById('messages_txt').innerHTML += msg+'<P>';

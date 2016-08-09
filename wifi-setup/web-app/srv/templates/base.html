@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 <head>
-  <title>Mycroft Device Setup: Connect to WiFi Network</title>
-  <script src="jquery-2.2.3.min.js"></script>
+    <title>Mycroft Device Setup: Connect to WiFi Network</title>
+    <script src="jquery-2.2.3.min.js"></script>
 
 <style>
 	html, body
@@ -80,6 +80,27 @@
 		outline: none;
 	}
 
+	.pairButton {
+		color: #65e765;
+		border: 2px solid #65e765;
+		background: #d3f8d3;
+	}
+	.pairButton:hover {
+		color: white;
+		border: 2px solid #38e038;
+		background: #a7f1a7;
+	}
+	.retryButton {
+		color: #ff9999;
+		border: 2px solid #ff9999;
+		background: white;
+	}
+	.retryButton:hover {
+		color: white;
+		border: 2px solid #ff1a1a;
+		background: #ffcccc;
+	}
+	
 	#page2 img {
 		width: 2em;
 	}
@@ -87,12 +108,16 @@
 	#page1,#footer1,
 	#page3, #footer3,
 	#page4, #footer4,
+	#page5, #footer5,
+	#page6, #footer6,
 	#getPass, #noPass
 	{ display: none; }
 
 	#debug {
 		display: none;
 		border-radius: 1em;
+		background: #ddd;
+		margin-bottom: 5px;
 	}
 
 	.center {
@@ -121,11 +146,23 @@
 		display: block;
 	}
 
+	a {
+		text-decoration: none;
+		color: blue;
+	}
+	a:hover {
+		text-decoration: none;
+		color: blue;
+	}
+	a:visited {
+		text-decoration: none;
+		color: blue;
+	}
+
 </style>
 
 </head>
 <body>
-
 <div class="container">
 
     <header class="header">
@@ -144,8 +181,6 @@
   
 </div>
   
-<!-- script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script -->
-
 <script>
 	var 	ws = null;
 	var 	g_ssid = "";
@@ -153,6 +188,15 @@
 	var 	False = false;	// used in passing encrypted setting to SelectSSID()
 	var 	True = true;
 
+	var     timeoutRescan = setTimeout(function() { location.reload(); }, 5000);
+
+	var	URL = location+"";
+	if (URL.indexOf('?debug') != -1)
+	{
+		var debugInfo = document.getElementById('debug');
+		debugInfo.style.display = "block";
+	}
+	
 	function NextPage(iCurPage, iNext)
 	{
 		var iNext = iNext > 0 ? iNext : iCurPage+1;
@@ -191,19 +235,29 @@
 
 	function SelectSSID(ssid, encrypted)
 	{
+		clearTimeout(timeoutRescan);
+		
+		var btnConnect = document.getElementById('btnConnect');
+		var getPass = document.getElementById('getPass');
+		var noPass = document.getElementById('noPass');
+		
 		if (encrypted)
 		{
-			var network = document.getElementById('network');
 			getPass.style.display = 'block';
 			noPass.style.display = 'none';
+			btnConnect.className = '';
 		}
 		else
 		{
-			var network = document.getElementById('networkNoPass');
 			getPass.style.display = 'none';
 			noPass.style.display = 'block';
+			btnConnect.className = 'btnDefault';
 		}
-		network.innerHTML = ssid;
+		
+		document.getElementById('pwd').value = '';
+		document.getElementById('network').innerHTML = ssid;
+		document.getElementById('networkNoPass').innerHTML = ssid;
+		document.getElementById('networkFailed').innerHTML = ssid;
 		g_ssid = ssid;
 		
 		NextPage(2);
@@ -213,6 +267,8 @@
 	function SSIDToDevice()
 	{
 		NextPage(3);
+		
+		// TODO: This should be removed once the websocket starts returning results
 		setTimeout(function() { Redirect() }, 1000);
 
 		// Send selected SSID and password to the device,
@@ -220,35 +276,26 @@
 		// given network.
 		//
 		var pwd = document.getElementById('pwd').value;
+		Log('sending SSID: '+g_ssid);
+		Log('sending password: '+pwd);
 		ws.send("{" + "'ssid':'''" + g_ssid + "'''}");
 		ws.send("{" + "'passphrase':'''" + pwd + "'''}");
 	}
 	
+	// TODO: This should be removed once the websocket starts returning results,
+	//       instead move the following NextPages() to the result handler.
 	function Redirect()
 	{
-		// TODO: Verify network connection...
-		/* get('http://www.google.com').then(
-			function(result) {
-				alert("Good!  "+result);
-			},
-			function (err) {
-				if (err == 'Error: Network Error')
-				{
-					// Failed to connect, try again in a few seconds...
-					setTimeout(function() { Redirect() }, 2000);
-				}
-				else
-				{
-					alert("good?!?"+err);
-				}
-				
-			}).catch(function(e){
-				alert('Catch');
-			}
-		); */
-		
-		// Jump to Cerberus to perform registration...
-		location = "https://cerberus.mycroft.ai";
+		if (document.getElementById('pwd').value == "")
+		{
+			Log('faking success');
+			NextPage(4, 5);     // success!
+		}
+		else
+		{
+			Log('faking failure');
+			NextPage(4, 6);	    // failed :(
+		}
 	}
 
 	function passKeypress(e)
@@ -266,98 +313,35 @@
 
 	////////////////////////////////////////////////
 	
+	function Log(msg)
+	{
+		document.getElementById('messages_txt').innerHTML += msg+'<P>';
+	}
+	
 	$(document).ready(function () {
 		ws = new WebSocket("ws://172.24.1.1:8888/ws");
 		ws.onopen = function(evt) {
-			var conn_status = document.getElementById('conn_text');
-			conn_status.innerHTML = "Connection status: Connected!"
+			Log("Web socket connected!");
 		};
 		
 		ws.onmessage = function(evt) {
-			var newMessage = document.createElement('p');
-			newMessage.textContent = "Server: " + evt.data;
-			document.getElementById('messages_txt').appendChild(newMessage);
+			Log("Server: " + evt.data);
 		};
 		
-		$("#scan-networks").click(function(evt) {
-			var message = "{'wifi':'scan_networks'}"
-			ws.send(message);
-		});
 		$("#ap-on").click(function(evt) {
 			var message = "{'station_mode':'ap_on'}"
-			alert("Enabling Station Mode")
+			Log("Enabling Station Mode")
 			ws.send(message);
 		});
 		$("#ap-off").click(function(evt) {
-			alert("Disabling Station Mode")
+			Log("Disabling Station Mode")
 			var message = "{'station_mode':'ap_off'}"
 			ws.send(message);
 		});
 	});
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////
-	// Helpers
-	
-	function get(url, respType) {
-		return doXHR("GET", url, respType);
-	}
-
-	// Ex: post("createAcct.php", "fname=Henry&lname=Ford");
-	//     post("compactDbase.php");
-	function post(url, data) {
-		return doXHR("POST", url, data);
-	}
-
-	function doXHR(method, url, param) {
-		// Return a new promise.
-		return new Promise(function(resolve, reject) {
-			// Do the usual XHR stuff
-			var req = new XMLHttpRequest();
-			
-			if (method === "GET" && IsDefined(param))
-			{
-				var respType = param;
-				if (respType === "blob" || respType === "arrayBuffer" || respType === "document" || respType === "json" || respType === "text")
-					req.responseType = respType;
-			}
-			req.open(method, url);
-
-			req.onload = function() {
-				// This is called even on 404 etc
-				// so check the status
-				if (req.status === 200) {
-					// Resolve the promise with the response text
-					resolve(req.response);
-				}
-				else {
-					// Otherwise reject with the status text
-					// which will hopefully be a meaningful error
-					reject(Error(req.statusText+": "+url));
-				}
-			};
-
-			// Handle network errors
-			req.onerror = function() {
-				reject(Error(req.status));
-			};
-
-			// Make the request
-			if (method === "POST" && IsDefined(param))
-			{
-				var data = param;
-				req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				req.send(data);
-			}
-			else
-				req.send();
-		});
-	}
-	
-	function IsDefined(parameter)
-	{
-		return !(typeof(parameter) === "undefined");
-	}
 </script>
+
 
 </body>
 </html>

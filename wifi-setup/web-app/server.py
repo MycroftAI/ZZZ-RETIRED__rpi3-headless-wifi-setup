@@ -7,11 +7,12 @@ import sys
 from subprocess import Popen, PIPE
 import logging
 from uuid import getnode as get_mac
-from hostapdconf import helpers as ha
-from hostapdconf.parser import HostapdConf
+#from hostapdconf import helpers as ha
+#from hostapdconf.parser import HostapdConf
 from shutil import copyfile
 from WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
 from FileUtils import client_mode_config
+from wpaCLITools import wpaClientTools
 from LinkUtils import JoinAP
 
 #from APTools import APConfig
@@ -124,8 +125,18 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             print "PASSPHRASE Recieved:", self.dict2
             print self.dict2['passphrase']
             wifi_connection_settings['passphrase'] = self.dict2['passphrase']
-            client_mode_config('wlan0',wifi_connection_settings['ssid'], self.dict2['passphrase'])
-            connect_to_wifi()
+            ssid = '"' + wifi_connection_settings['ssid'] + '"'
+            passphrase = '"' + self.dict2['passphrase'] + '"'
+            print ssid + passphrase
+            WiFi = wpaClientTools()
+            network_id = WiFi.wpa_cli_add_network(['wlan0'])
+            print network_id
+            print WiFi.wpa_cli_set_network('wlan0', network_id, 'ssid', ssid)
+            print WiFi.wpa_cli_set_network('wlan0', network_id, 'psk', passphrase)
+            print WiFi.wpa_cli_enable_network('wlan0', network_id)
+            #client_mode_config('wlan0',wifi_connection_settings['ssid'], self.dict2['passphrase'])
+            #connect_to_wifi()
+
 
 root = os.path.join(os.path.dirname(__file__), "srv/templates")
 		
@@ -146,12 +157,13 @@ wifi_connection_settings = {'ssid':'', 'passphrase':''}
 
 
 
+
 def connect_to_wifi():
 
     try:
         bash_command(["ip addr flush wlan0"])
         #bash_command(["service wpa_supplicant stop"])
-        #ash_command(["wpa_supplicant -iwlan0 -Dnl80211 -c /etc/wpa_supplicant/wpa_supplicant.conf"])
+        #bash_command(["wpa_supplicant -iwlan0 -Dnl80211 -c /etc/wpa_supplicant/wpa_supplicant.conf"])
         bash_command(["ifdown","wlan0"])
         bash_command(['ifconfig', 'wlan0','up'])
         bash_command(["ifup","wlan0"])

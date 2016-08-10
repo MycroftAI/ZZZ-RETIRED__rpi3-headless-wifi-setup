@@ -66,10 +66,10 @@ class apWorker (threading.Thread):
         self.q = q
     def run(self):
         print "Starting " + self.name + str(self.threadID)
-        apScan = ScanForAP('scan', 'uap0')
-        apScan.start()
-        apScan.join()
-        ap = apScan.join()
+        #apScan = ScanForAP('scan', 'uap0')
+        #apScan.start()
+        #apScan.join()
+        #ap = apScan.join()
 
         #################################################
         # Clean up the list of networks.
@@ -157,12 +157,12 @@ threadID = 1
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, exit_gracefully)
-    client_connect_test('wlan0', 'MOTOROLA-F29E5', '2e636e8543dc97ee7299')
+    #client_connect_test('wlan0', 'MOTOROLA-F29E5', '2e636e8543dc97ee7299')
 
-    link_add_vap()
-    ap = ScanForAP("AP SCAN: ", 'uap0')
-    ap.start()
-    print ap.join()
+    #link_add_vap()
+    #ap = ScanForAP("AP SCAN: ", 'uap0')
+    #ap.start()
+    #print ap.join()
     #client_connect_test('wlan0', 'MOTOROLA-F29E5', '2e636e8543dc97ee7299')
     # Create new threads
     #for tName in threadList:
@@ -171,15 +171,15 @@ if __name__ == "__main__":
     thread.start()
     threads.append(thread)
     threadID += 1
-    thread = apWorker(threadID, 'ap', workQueue)
-    thread.setDaemon(True)
-    thread.start()
-    threads.append(thread)
-    threadID += 1
-    thread = dnsmasqWorker(threadID, 'dns', workQueue)
-    thread.start()
-    threads.append(thread)
-    threadID += 1
+    #thread = apWorker(threadID, 'ap', workQueue)
+    #thread.setDaemon(True)
+    #thread.start()
+    #threads.append(thread)
+    #threadID += 1
+    #thread = dnsmasqWorker(threadID, 'dns', workQueue)
+    #thread.start()
+    #threads.append(thread)
+    #threadID += 1
     print threading.enumerate()
     # Fill the queue
     queueLock.acquire()
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     exitFlag = 1
 
     # Wait for all threads to complete
-    #for t in threads:
-        #t.is_alive()
-#        t.join()
+    for t in threads:
+        t.is_alive()
+        t.join()
     #print "Exiting Main Thread"

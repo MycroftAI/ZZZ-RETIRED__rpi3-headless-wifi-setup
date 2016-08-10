@@ -2,12 +2,4 @@ ctrl_interface=/var/run/wpa_supplicant
 update_config=1
 country=US
 
-network={
-	ssid="Entrepreneur"
-	psk="startsomething"
-}
 
-network={
-	ssid="Entrepreneur"
-	psk="startsomething"
-}

@@ -282,7 +282,7 @@
 		NextPage(3);
 		
 		// TODO: This should be removed once the websocket starts returning results
-		setTimeout(function() { Redirect() }, 1000);
+		// setTimeout(function() { Redirect() }, 1000);
 
 		// Send selected SSID and password to the device,
 		// which will drop the AP Mode and move to the
@@ -297,7 +297,7 @@
 
 	// TODO: This should be removed once the websocket starts returning results,
 	//       instead move the following NextPages() to the result handler.
-	function Redirect()
+/*	function Redirect()
 	{
 		if (document.getElementById('pwd').value == "")
 		{
@@ -309,7 +309,7 @@
 			Log('faking failure');
 			NextPage(4, 6);	    // failed :(
 		}
-	}
+	} */
 
 	function passKeypress(e)
 	{
@@ -339,6 +339,10 @@
 		
 		ws.onmessage = function(evt) {
 			Log("Server: " + evt.data);
+			if (evt.data == "success")
+				NextPage(4, 5);     // success!
+			if (evt.data == "unableToConnect")
+				NextPage(4, 6);	    // failed :(
 		};
 		
 		$("#ap-on").click(function(evt) {

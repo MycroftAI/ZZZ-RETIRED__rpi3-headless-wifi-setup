@@ -92,11 +92,11 @@ iface lo inet loopback
 
 auto eth0
 allow-hotplug eth0
-iface eth0 inet dhcp"
+iface eth0 inet dhcp
 
 auto {wdev}
 allow-hotplug {wdev}
-iface{wdev} inet dhcp
+iface {wdev} inet dhcp
     wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 
 auto {vdev}
@@ -115,6 +115,26 @@ iface {vdev} inet static
     network_interfaces_write = WriteFileTemplate('Write Network interface settings to ', '/etc/network/interfaces', template, context)
     network_interfaces_write.start()
     network_interfaces_write.join()
+
+def write_dnsmasq(interface, server, dhcp_range_start, dhcp_range_end):
+    template = """interface={interface}
+bind-interfaces
+server={server}
+bogus-priv
+dhcp-range={dhcp_range_start}, {dhcp_range_end}, 12h
+address=/mycroft.ai/172.24.1.1
+address=/#/172.24.1.1
+    """
+
+    context = {
+        "interface": interface,
+        "server": server,
+        "dhcp_range_start": dhcp_range_start,
+        "dhcp_range_end": dhcp_range_end
+    }
+    dns_conf_write = WriteFileTemplate('Write Network interface settings to ', '/etc/dnsmasq.conf', template, context)
+    dns_conf_write.start()
+    dns_conf_write.join()
 
 def backup_system_files():
     backup_path = './config_backup/'

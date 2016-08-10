@@ -3,6 +3,7 @@ import threading
 from subprocess import Popen, PIPE
 from collections import defaultdict
 from wifi import Cell, Scheme
+import time
 
 class ScanForAP(threading.Thread):
     def __init__(self, name, interface):
@@ -62,9 +63,12 @@ def bash_command(cmd):
 
 def link_add_vap():
     print bash_command('iw dev wlan0 interface add uap0 type __ap')
+    time.sleep(2)
     print bash_command('ifdown upa0')
+    time.sleep(2)
     print bash_command('ifup upa0')
-
+    time.sleep(2)
+    return
 
 def client_mode_config(iface, ssid, passphrase):
     write_wpa_supplicant_conf(ssid, passphrase)

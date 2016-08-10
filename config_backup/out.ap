@@ -1,9 +1,8 @@
 interface=uap0
 driver=nl80211
-ssid=Mycroft-202481602329199
+ssid=mycroft
 hw_mode=g
-channel=6
-country_code=US
+channel=11
 ieee80211n=1
 wmm_enabled=1
 ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]

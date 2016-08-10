@@ -1,8 +1,13 @@
-country=US
 ctrl_interface=/var/run/wpa_supplicant
 update_config=1
+country=US
+
 network={
-ssid="MOTOROLA-F29E5"
-psk="2e636e8543dc97ee7299"
-key_mgmt=WPA-PSK
+	ssid="Entrepreneur"
+	psk="startsomething"
+}
+
+network={
+	ssid="Entrepreneur"
+	psk="startsomething"
 }

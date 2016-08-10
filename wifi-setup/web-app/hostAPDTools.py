@@ -15,17 +15,17 @@ class hostAPServerTools():
     def hostAPDStatus(self):
         results = bash_command(['systemctl', 'status', 'hostapd.service'])
         return results
+    def hostAPDCli(self):
+        results = bash_command(['hostapd', '/etc/hostapd/hostapd.conf'])
+        return results
 
 def main():
     HostAP = hostAPServerTools()
     print HostAP.hostAPDStart()
-    time.sleep(10)
-
     print HostAP.hostAPDStatus()['stdout'].strip()
     print HostAP.hostAPDStop()
-
     print HostAP.hostAPDStatus()['stdout'].strip()
-
+    print HostAP.hostAPDCli()
 
 if __name__ == "__main__":
     main()

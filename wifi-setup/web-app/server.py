@@ -18,6 +18,8 @@ from LinkUtils import JoinAP
 #from APTools import APConfig
 from Config import AppConfig
 
+import time
+
 #copyfile('config.templates/hostapd.conf.template', '/etc/hostapd/hostapd.conf')
 #APConf = HostapdConf('/etc/hostapd/hostapd.conf')
 #print APConf['interface']
@@ -125,15 +127,29 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             print "PASSPHRASE Recieved:", self.dict2
             print self.dict2['passphrase']
             wifi_connection_settings['passphrase'] = self.dict2['passphrase']
-            ssid = '"' + wifi_connection_settings['ssid'] + '"'
-            passphrase = '"' + self.dict2['passphrase'] + '"'
-            print ssid + passphrase
+            ssid = wifi_connection_settings['ssid']
+            passphrase = self.dict2['passphrase']
+            ssid = '''"''' + ssid +  '''"'''
+            passphrase = '''"''' + passphrase + '''"'''
             WiFi = wpaClientTools()
-            network_id = WiFi.wpa_cli_add_network(['wlan0'])
+            network_id = WiFi.wpa_cli_add_network('wlan0')['stdout'].strip()
             print network_id
-            print WiFi.wpa_cli_set_network('wlan0', network_id, 'ssid', ssid)
-            print WiFi.wpa_cli_set_network('wlan0', network_id, 'psk', passphrase)
+            print WiFi.wpa_cli_set_network('wlan0', str(network_id), 'ssid', ssid)
+            print WiFi.wpa_cli_set_network('wlan0', str(network_id), 'psk', passphrase)
             print WiFi.wpa_cli_enable_network('wlan0', network_id)
+            x = 15
+            while x > 0:
+                try:
+                    if WiFi.wpa_cli_status('wlan0')['wpa_state'] == 'COMPLETED':
+                        print "CONNECTED"
+                        print WiFi.wpa_save_network(str(network_id))
+                        print WiFi.wpa_cli_disable_network(str(network_id))
+                        x = 0
+                except:
+                    print "no"
+                    x = x - 1
+                    time.sleep(1)
+
             #client_mode_config('wlan0',wifi_connection_settings['ssid'], self.dict2['passphrase'])
             #connect_to_wifi()
 

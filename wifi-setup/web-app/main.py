@@ -3,9 +3,9 @@
 
 import Queue
 import threading
-import time
 import os
 import signal
+import time
 
 import tornado.ioloop
 import tornado.web, tornado.websocket
@@ -13,12 +13,17 @@ import tornado.template
 import sys
 from operator import itemgetter
 
+from wpaCLITools import wpaClientTools
+from hostAPDTools import hostAPServerTools
+from dnsmasqTools import dnsmasqTools
 
 from server import MainHandler, JSHandler, BootstrapMinJSHandler, BootstrapMinCSSHandler, WSHandler
 from WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
 from Config import AppConfig
-from FileUtils import ap_mode_config, ap_mode_deconfig
+from FileUtils import ap_mode_config, write_hostapd_conf, write_network_interfaces, write_dnsmasq
 from LinkUtils import ScanForAP, link_add_vap, client_connect_test
+
+
 config = AppConfig()
 config.open_file()
 Port = config.ConfigSectionMap("server_port")['port']
@@ -113,7 +118,12 @@ class Station():
     def station_mode_on(self):
         print "station mode on"
         ap_mode_config()
-        self.aptools.hostapd_start()
+        print init_stop_services()
+        time.sleep(2)
+        print init_set_interfaces()
+        time.sleep(2)
+        print init_hostap_mode()
+        #self.aptools.hostapd_start()
         #self.aptools.dnsmasq_start()
 
         #aptools.ap_config()
@@ -124,7 +134,7 @@ class Station():
 
     def station_mode_off(self):
         print "station mode off"
-        #self.aptools.dnsmasq_stop()
+        self.aptools.dnsmasq_stop()
         self.aptools.hostapd_stop()
 
     def dnsmasq_on(self):
@@ -138,10 +148,37 @@ class Station():
 #        devtools.link_down()
 #        devtools.link_up()
 
+def init_stop_services():
+    WPATools.wpa_cli_flush()
+    DNSTools.dnsmasqServiceStop()
+    APTools.hostAPDStop()
+    return "STOPPED services"
+
+def init_set_interfaces():
+    write_network_interfaces('wlan0','uap0', '172.24.1.1', 'bc:5f:f4:be:7d:0a')
+    link_add_vap()
+    return "SETUP interfaces"
+
+def init_hostap_mode():
+    write_hostapd_conf('uap0','nl80211','mycroft',11)
+    write_dnsmasq('uap0','172.24.1.1','172.24.1.10','172.24.1.20')
+    APTools.hostAPDStart()
+    DNSTools.dnsmasqServiceStart()
+    return APTools.hostAPDStatus()
+
+def try_connect():
+    network_id = WPATools.wpa_cli_add_network('wlan0')
+    print network_id
+    # print wpa_cli_flush()
+    print WPATools.wpa_cli_set_network('wlan0', '0', 'ssid', '"Entrepreneur"')
+    print WPATools.wpa_cli_set_network('wlan0', '0', 'psk', '"startsomething"')
+    print WPATools.wpa_cli_enable_network('wlan0', '0')
+
 def exit_gracefully(signal, frame):
+    INIT = False
     print "caught SIGINT"
     S = Station()
-    ap_mode_deconfig()
+    #ap_mode_deconfig()
     S.station_mode_off()
     S.dnsmasq_off()
     print "exiting"
@@ -157,6 +194,54 @@ threadID = 1
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, exit_gracefully)
+
+
+    # New
+    WPATools = wpaClientTools()
+    APTools = hostAPServerTools()
+    DNSTools = dnsmasqTools()
+
+    S = Station()
+    S.station_mode_on()
+
+    # new vars
+
+    INIT = True
+    #try_connect()
+    if INIT is True:
+        ap = ScanForAP("AP SCAN: ", 'uap0')
+
+        thread = apWorker(threadID, 'ap', workQueue)
+        thread.setDaemon(True)
+        thread.start()
+        threads.append(thread)
+        threadID += 1
+        thread.join()
+
+        thread = tornadoWorker(threadID, 'web', workQueue)
+        thread.setDaemon(True)
+        thread.start()
+        threads.append(thread)
+        threadID += 1
+        #thread.join()
+
+
+    while INIT is True:
+        print "ok"
+        try:
+            if WiFi.wpa_cli_status('wlan0')['wpa_state'] == 'COMPLETED':
+                print "CONNECTED"
+                INIT = False
+        except:
+            print "no"
+            time.sleep(1)
+
+
+        #or t in threads:
+        #   t.is_alive()
+        #   t.join()
+
+
     #client_connect_test('wlan0', 'MOTOROLA-F29E5', '2e636e8543dc97ee7299')
 
     #link_add_vap()
@@ -166,11 +251,11 @@ if __name__ == "__main__":
     #client_connect_test('wlan0', 'MOTOROLA-F29E5', '2e636e8543dc97ee7299')
     # Create new threads
     #for tName in threadList:
-    thread = tornadoWorker(threadID, 'web', workQueue)
-    thread.setDaemon(True)
-    thread.start()
-    threads.append(thread)
-    threadID += 1
+    ##thread = tornadoWorker(threadID, 'web', workQueue)
+    ##thread.setDaemon(True)
+    ##thread.start()
+    ##threads.append(thread)
+    ##threadID += 1
     #thread = apWorker(threadID, 'ap', workQueue)
     #thread.setDaemon(True)
     #thread.start()
@@ -180,23 +265,23 @@ if __name__ == "__main__":
     #thread.start()
     #threads.append(thread)
     #threadID += 1
-    print threading.enumerate()
+    ##print threading.enumerate()
     # Fill the queue
-    queueLock.acquire()
+    ##queueLock.acquire()
     #for word in nameList:
     #    workQueue.put(word)
-    queueLock.release()
+    ##queueLock.release()
 
     # Wait for queue to empty
-    while not workQueue.empty():
+    ##while not workQueue.empty():
 
-        pass
+        #pass
 
     # Notify threads it's time to exit
-    exitFlag = 1
+    #exitFlag = 1
 
     # Wait for all threads to complete
-    for t in threads:
-        t.is_alive()
-        t.join()
+    #for t in threads:
+    #    t.is_alive()
+    #    t.join()
     #print "Exiting Main Thread"

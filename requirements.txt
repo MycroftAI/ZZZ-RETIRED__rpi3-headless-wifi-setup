@@ -6,3 +6,4 @@ pyroute2
 pyhostapdconf
 python-iptables
 urllib5
+pyric

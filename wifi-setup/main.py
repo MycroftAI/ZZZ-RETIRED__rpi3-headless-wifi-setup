@@ -1,28 +1,26 @@
 #!/usr/bin/env python
-#!/usr/bin/python
 
 import Queue
-import threading
 import os
 import signal
-import time
-
-import tornado.ioloop
-import tornado.web, tornado.websocket
-import tornado.template
 import sys
+import threading
+import time
 from operator import itemgetter
 
-from wpaCLITools import wpaClientTools
-from hostAPDTools import hostAPServerTools
-from dnsmasqTools import dnsmasqTools
+import tornado.ioloop
+import tornado.template
+import tornado.web
+import tornado.websocket
 
-from server import MainHandler, JSHandler, BootstrapMinJSHandler, BootstrapMinCSSHandler, WSHandler
-from WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
-from Config import AppConfig
-from FileUtils import ap_mode_config, write_hostapd_conf, write_network_interfaces, write_dnsmasq
-from LinkUtils import ScanForAP, link_add_vap, client_connect_test
-
+from app.util.Config import AppConfig
+from app.util.FileUtils import ap_mode_config, write_hostapd_conf, write_network_interfaces, write_dnsmasq
+from app.util.LinkUtils import ScanForAP, link_add_vap
+from app.util.WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
+from app.util.dnsmasqTools import dnsmasqTools
+from app.util.hostAPDTools import hostAPServerTools
+from app.util.Server import MainHandler, JSHandler, BootstrapMinJSHandler, BootstrapMinCSSHandler, WSHandler
+from app.util.wpaCLITools import wpaClientTools
 
 config = AppConfig()
 config.open_file()
@@ -93,6 +91,7 @@ class apWorker (threading.Thread):
         # ap = linktools.scan_ap()
         S = Station()
         try:
+            print "station on"
             S.station_mode_on()
         except:
             exit(0)
@@ -109,6 +108,7 @@ class dnsmasqWorker (threading.Thread):
         print "Starting " + self.name + str(self.threadID)
 
         try:
+            print "dnsmasq on"
             S.dnsmasq_on()
         except:
             exit(0)

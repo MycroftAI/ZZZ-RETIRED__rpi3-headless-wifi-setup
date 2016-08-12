@@ -1,22 +1,19 @@
+import ast
 import datetime
-import tornado.template
+import logging
 import os
 import re
-import ast
 import sys
 from subprocess import Popen, PIPE
-import logging
-from uuid import getnode as get_mac
+
+import tornado.template
 #from hostapdconf import helpers as ha
 #from hostapdconf.parser import HostapdConf
 from shutil import copyfile
-from WiFiTools import ap_link_tools,dev_link_tools, hostapd_tools
-from FileUtils import client_mode_config
+from WiFiTools import ap_link_tools
 from wpaCLITools import wpaClientTools
-from LinkUtils import JoinAP
 
 #from APTools import APConfig
-from Config import AppConfig
 
 import time
 

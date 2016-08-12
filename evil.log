@@ -1,3 +1,0 @@
-2016-08-07 21:41:35 DEBUG test-connect.py: Executable 'iwconfig' returned successfully. First line of response was "uap0      IEEE 802.11bgn  Mode:Master  "
-2016-08-07 21:41:35 DEBUG test-connect.py: Executable 'wpa_cli' returned with the error: "Failed to connect to non-global ctrl_ifname: (null)  error: No such file or directory
-"

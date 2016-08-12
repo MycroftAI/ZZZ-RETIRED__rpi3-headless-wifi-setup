@@ -1,8 +1,0 @@
-interface=uap0
-bind-interfaces
-server=172.24.1.1
-bogus-priv
-dhcp-range=172.24.1.10, 172.24.1.20, 12h
-address=/mycroft.ai/172.24.1.1
-address=/#/172.24.1.1
-    

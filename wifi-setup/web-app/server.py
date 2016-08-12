@@ -142,9 +142,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 try:
                     if WiFi.wpa_cli_status('wlan0')['wpa_state'] == 'COMPLETED':
                         print "CONNECTED"
-                        print WiFi.wpa_save_network(str(network_id))
-                        print WiFi.wpa_cli_disable_network(str(network_id))
                         self.write_message("Authenication Sucessful")
+                        print WiFi.wpa_save_network(str(network_id))
+                        self.write_message("Saving Network SSID and Passphrase")
+                        print WiFi.wpa_cli_disable_network(str(network_id))
                         x = 0
                 except:
                     self.write_message("Attempting to Authenticate")

@@ -40,7 +40,7 @@ handlers = [
     (r"/ws",WSHandler)
 ]
 settings = dict(
-    template_path=os.path.join(os.path.dirname(__file__), "srv/templates"),
+    template_path=os.path.join(os.path.dirname(__file__), "./srv/templates"),
 )
 
 exitFlag = 0

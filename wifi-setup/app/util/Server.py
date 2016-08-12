@@ -166,7 +166,7 @@ handlers = [
 ]
 
 settings = dict(
-    template_path=os.path.join(os.path.dirname(__file__), "srv/templates"),
+    template_path=os.path.join(os.path.dirname(__file__), "../srv/templates"),
 )
 
 wifi_connection_settings = {'ssid':'', 'passphrase':''}

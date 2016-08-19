@@ -54,10 +54,7 @@ class tornadoWorker (threading.Thread):
     def run(self):
         print "Starting " + self.name + str(self.threadID)
         #process_data(self.name, self.q)
-        ws_app = tornado.web.Application([(r'/ws', WSHandler), ])
-        ws_app.listen('8888')#Port)
-        app = tornado.web.Application(handlers, **settings)
-        app.listen('80')
+
         tornado.ioloop.IOLoop.current().start()
         #print "Exiting " + self.name
 
@@ -195,6 +192,10 @@ threadID = 1
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, exit_gracefully)
 
+    ws_app = tornado.web.Application([(r'/ws', WSHandler), ])
+    ws_app.listen('8888')  # Port)
+    app = tornado.web.Application(handlers, **settings)
+    app.listen('80')
 
     # New
     WPATools = wpaClientTools()
@@ -209,14 +210,14 @@ if __name__ == "__main__":
     INIT = True
     #try_connect()
     if INIT is True:
-        ap = ScanForAP("AP SCAN: ", 'uap0')
+        ap = ScanForAP("AP SCAN: ", 'wlp3s0')
 
-        thread = apWorker(threadID, 'ap', workQueue)
-        thread.setDaemon(True)
-        thread.start()
-        threads.append(thread)
-        threadID += 1
-        thread.join()
+        #thread = apWorker(threadID, 'ap', workQueue)
+        #thread.setDaemon(True)
+        #thread.start()
+        #threads.append(thread)
+        #threadID += 1
+        #thread.join()
 
         thread = tornadoWorker(threadID, 'web', workQueue)
         thread.setDaemon(True)

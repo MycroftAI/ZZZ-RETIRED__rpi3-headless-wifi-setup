@@ -1,6 +1,9 @@
-tornado
-wifi
-configparser
-collections-extended
-pyroute2
-pyhostapdconf
+tornado==4.4.1
+wifi==0.3.8
+configparser==3.5.0
+collections-extended==0.7.2
+pyroute2==0.4.5
+pyhostapdconf==1.0
+python-iptables==0.11.0
+urllib5==5.0.0
+pyric==0.1.5.3

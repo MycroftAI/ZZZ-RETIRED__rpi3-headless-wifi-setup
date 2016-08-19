@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # install debian dependencies
-sudo apt-get update && install dnsmasq hostapd
+sudo apt-get update && apt-get install dnsmasq hostapd virtualenv virtualenvwrapper python-dev -y
 
 # exit on any error
 set -Ee

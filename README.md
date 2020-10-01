@@ -1,5 +1,5 @@
 #wifi-setup  -- WIP(dangerzone)
-This project aims to create a web interface, similar to a router setup page, for connecting a Raspberry Pi 3 to a wireless network.
+This useful project aims to create a web interface, similar to a router setup page, for connecting a Raspberry Pi 3 to a wireless network.
 Beware that this project will manipulate system files and services. Running this software will also require sudo (for now).
 
 Development Dependencies:
